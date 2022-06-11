@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.dongsungsi.dao.TutorialDao">
+<!--    //    화면에서 publish 버튼을 클릭할때 적용되는 메소드-->
+<!--    List<Tutorial> findByPublished(String published);-->
+    <select id="findByPublished" parameterType="String" resultType="com.example.dongsungsi.model.Tutorial">
+        SELECT
+            ID,
+            TITLE,
+            DESCRIPTION,
+            PUBLISHED,
+            DELETE_YN,
+            INSERT_TIME,
+            UPDATE_TIME,
+            DELETE_TIME
+    FROM TB_TUTORIAL_KNR
+    WHERE DELETE_YN = 'N'
+    AND PUBLISHED = #{published}
+    </select>
+<!--    //      제목 검색을 위한 메소드-->
+<!--    List<Tutorial> findByTitleContaining(String title);-->
+<!--    TODO: 아래 수정 , findByTitleContaining,findAll selectTotalCount-->
+<!--    페이징 처리(한페이지에 나올 게시글 개수 정해서 페이지 바꿔가면서 확인하는 쿼리)-->
+<!--    List<Tutorial> findByTitleContaining(Criteria criteria)-->
+    <select id="findByTitleContaining"
+            parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.Tutorial">
+        SELECT *
+        FROM (
+        SELECT
+        ROWNUM R, TT.*
+        FROM TB_TUTORIAL_KNR TT
+        WHERE TT.DELETE_YN = 'N'
+        <!--        AND TITLE LIKE '%'|| #{title}||'%' 문자열 연결 , 제목 검색-->
+        AND TITLE LIKE '%'|| #{title}||'%'
+        AND ROWNUM &lt;=(#{page}+1)*#{size}
+        )
+        WHERE R > #{page}*#{size}
+    </select>
+<!--    //    모든 목록 조회-->
+<!--    List<Tutorial> findAll();-->
+<!--    전체 조회  List<Tutorial> findAll(Criteria criteria)-->
+    <select id="findAll"
+            parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.Tutorial">
+        SELECT *
+        FROM (
+        SELECT
+        ROWNUM R, TT.*
+        FROM TB_TUTORIAL_KNR TT
+        WHERE TT.DELETE_YN = 'N'
+        <!--        AND TITLE LIKE '%'|| #{title}||'%' 문자열 연결 , 제목 검색-->
+        AND ROWNUM &lt;=(#{page}+1)*#{size}
+        )
+        WHERE R > #{page}*#{size}
+    </select>
+    <!--    //    제목에 다른 데이터 건수를 세는 메소드-->
+    <!--    int selectTotalCount(String title);-->
+    <select id="selectTotalCount" parameterType="String" resultType="int">
+        SELECT
+           COUNT(*)
+        FROM TB_TUTORIAL_KNR
+        WHERE DELETE_YN = 'N'
+          AND TITLE LIKE '%'|| #{title}||'%'
+          AND TITLE LIKE '%'|| #{title}||'%'
+    </select>
+<!--    //    id에 해당하는 값을 조회-->
+<!--    //    Optional: null을 방지하는 클래스-->
+<!--    Optional<Tutorial> findById(Long id);-->
+    <select id="findById" parameterType="Long" resultType="com.example.dongsungsi.model.Tutorial">
+        SELECT
+            ID,
+            TITLE,
+            DESCRIPTION,
+            PUBLISHED,
+            DELETE_YN,
+            INSERT_TIME,
+            UPDATE_TIME,
+            DELETE_TIME
+        FROM TB_TUTORIAL_KNR
+        WHERE DELETE_YN = 'N'
+          AND ID = #{id}
+    </select>
+
+<!--    //    Tutorial 테이블에 데이터 넣기 메소드(insert)-->
+<!--    int insertTutorial(Tutorial tutorial);-->
+    <insert id="insertTutorial" parameterType="com.example.dongsungsi.model.Tutorial" >
+        INSERT INTO TB_TUTORIAL_KNR(
+            ID,
+            TITLE,
+            DESCRIPTION,
+            PUBLISHED,
+            INSERT_TIME
+        )VALUES (
+            SQ_TUTORIAL_KNR.NEXTVAL,
+            #{title},
+            #{description},
+            'Y',
+            TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+                        )
+    </insert>
+<!--    //    Tutorial 테이블에 데이터 수정 메소드(update)-->
+<!--    int updateTutorial(Tutorial tutorial);-->
+    <update id="updateTutorial" parameterType="com.example.dongsungsi.model.Tutorial">
+        UPDATE TB_TUTORIAL_KNR
+        SET
+            TITLE = #{title},
+            DESCRIPTION = #{description},
+            PUBLISHED = DECODE(#{published},'true','Y','N'),
+            UPDATE_TIME= TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE
+            ID = #{id}
+    </update>
+<!--    //    Tutorial 테이블에 데이터 삭제 메소드(delete)(deleteYn = 'Y' : 실제로는 수정 )-->
+<!--    int deleteTutorial(Long id);-->
+    <update id="deleteTutorial" parameterType="Long">
+        UPDATE TB_TUTORIAL_KNR
+        SET
+            DELETE_YN = 'Y',
+            DELETE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE
+            ID = #{id}
+    </update>
+<!--    //    Tutorial 테이블에 데이터 모두 삭제 메소드(deleteAll)-->
+<!--    int deleteAll();-->
+    <update id="deleteAll" >
+        UPDATE TB_TUTORIAL_KNR
+        SET
+            DELETE_YN = 'Y',
+            DELETE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+    </update>
+</mapper>
+

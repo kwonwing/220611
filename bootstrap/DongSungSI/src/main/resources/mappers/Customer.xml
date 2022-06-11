@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.dongsungsi.dao.CustomerDao">
+<!--    TODO : findAll 수정 findByEmailContaining, -->
+<!--    //    전체 회원 조회 메소드-->
+<!--    List<Customer> findAll();-->
+    <select id="findAll"
+            parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.Customer">
+        SELECT *
+        FROM (
+        SELECT
+        ROWNUM R, TT.*
+        FROM TB_CUSTOMER_KNR TT
+        WHERE TT.DELETE_YN = 'N'
+        <!--        AND TITLE LIKE '%'|| #{title}||'%' 문자열 연결 , 제목 검색-->
+        AND ROWNUM &lt;=(#{page}+1)*#{size}
+        )
+        WHERE R > #{page}*#{size}
+    </select>
+<!--    List<Customer> findByEmailContaining(Criteria criteria);-->
+    <select id="findByEmailContaining"
+            parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.Customer">
+        SELECT *
+        FROM (
+        SELECT
+        ROWNUM R, TT.*
+        FROM TB_CUSTOMER_KNR TT
+        WHERE TT.DELETE_YN = 'N'
+        <!--        AND TITLE LIKE '%'|| #{title}||'%' 문자열 연결 , 제목 검색-->
+        AND TITLE LIKE '%'|| #{title}||'%'
+        AND ROWNUM &lt;=(#{page}+1)*#{size}
+        )
+        WHERE R > #{page}*#{size}
+    </select>
+<!--    //    제목에 다른 데이터 건수를 세는 메소드-->
+<!--    int selectTotalCount(String email);-->
+    <select id="selectTotalCount" parameterType="String" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM TB_CUSTOMER_KNR
+        WHERE DELETE_YN = 'N'
+          AND TITLE LIKE '%'|| #{title}||'%'
+          AND TITLE LIKE '%'|| #{title}||'%'
+    </select>
+<!--    //      id로 회원 조회 메소드-->
+<!--    Optional<Customer> findById(Long id);-->
+    <select id="findById" parameterType="long" resultType="com.example.dongsungsi.model.Customer">
+        SELECT
+            ID
+             ,FIRST_NAME
+             ,LAST_NAME
+             ,EMAIL
+             ,PHONE
+             ,DELETE_YN
+             ,INSERT_TIME
+             ,UPDATE_TIME
+             ,DELETE_TIME
+        FROM TB_CUSTOMER_KNR
+        WHERE DELETE_YN='N'
+        AND ID=#{id}
+    </select>
+<!--    //    회원 생성 메소드-->
+<!--    long insertCustomer(Customer customer);-->
+    <insert id="insertCustomer" parameterType="com.example.dongsungsi.model.Customer">
+        INSERT INTO TB_CUSTOMER_KNR(
+            ID
+           ,FIRST_NAME
+           ,LAST_NAME
+           ,EMAIL
+           ,PHONE
+           ,INSERT_TIME
+        )VALUES (
+                SQ_CUSTOMER_KNR.NEXTVAL
+                , #{firstName}
+                , #{lastName}
+                , #{email}
+                , #{phone}
+                ,TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+                        )
+<!-- 시퀀스로 받은 id를 vue단으로 보내줌-->
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT SQ_CUSTOMER_KNR.CURRVAL FROM DUAL
+        </selectKey>
+    </insert>
+<!--    //    회원 수정 메소드-->
+<!--    long updateCustomer(Customer customer);-->
+    <update id="updateCustomer" parameterType="com.example.dongsungsi.model.Customer">
+        UPDATE TB_CUSTOMER_KNR
+            SET
+            FIRST_NAME =#{firstName}
+            ,LAST_NAME=#{lastName}
+            ,EMAIL=#{email}
+            ,PHONE=#{phone}
+            ,UPDATE_TIME= TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE
+            ID=#{id}
+    </update>
+<!--    //    회원 삭제 메소드-->
+<!--    int deleteCustomer(Long id);-->
+    <update id="deleteCustomer">
+        UPDATE TB_CUSTOMER_KNR
+        SET
+          DELETE_YN ='Y'
+          ,DELETE_TIME= TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE
+            ID=#{id}
+    </update>
+<!--    //    전체 회원 삭제 메소드-->
+<!--    int deleteAll();-->
+    <update id="deleteAll">
+        UPDATE TB_CUSTOMER_KNR
+        SET
+                DELETE_YN ='Y'
+                ,DELETE_TIME= TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+    </update>
+
+</mapper>
