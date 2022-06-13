@@ -5,7 +5,7 @@ class CustomerDataService {
     // 모든 회원 조회
       //TODO : getAll() -> getAll(params)
   getAll(params) {
-    return http.get("/tutorials",{params});
+    return http.get("/customers",{params});
   }
 
 

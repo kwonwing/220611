@@ -30,7 +30,7 @@
         FROM TB_CUSTOMER_KNR TT
         WHERE TT.DELETE_YN = 'N'
         <!--        AND TITLE LIKE '%'|| #{title}||'%' 문자열 연결 , 제목 검색-->
-        AND TITLE LIKE '%'|| #{title}||'%'
+        AND EMAIL LIKE '%'|| #{email}||'%'
         AND ROWNUM &lt;=(#{page}+1)*#{size}
         )
         WHERE R > #{page}*#{size}
@@ -42,8 +42,7 @@
             COUNT(*)
         FROM TB_CUSTOMER_KNR
         WHERE DELETE_YN = 'N'
-          AND TITLE LIKE '%'|| #{title}||'%'
-          AND TITLE LIKE '%'|| #{title}||'%'
+          AND EMAIL LIKE '%'|| #{email}||'%'
     </select>
 <!--    //      id로 회원 조회 메소드-->
 <!--    Optional<Customer> findById(Long id);-->

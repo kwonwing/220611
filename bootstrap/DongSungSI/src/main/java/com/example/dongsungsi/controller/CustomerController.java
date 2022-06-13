@@ -59,9 +59,9 @@ public class CustomerController {
 //            조회 데이터가 있으면 : tutorials 전송, 상태정보(OK) 전송
 //            TODO : Map 에 넣어 객체 + 페이지 정보를 vue로 전송
             Map<String, Object> response = new HashMap<>();
-            response.put("tutorials", customers);
+            response.put("customers", customers);
 //            현재 페이지
-            response.put("currentPage", criteria.getPage());
+            response.put("customersPage", criteria.getPage());
 //            총 건수
             response.put("totalItems", criteria.getTotalItems());
 //            총 페이지 개수
